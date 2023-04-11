@@ -40,7 +40,7 @@ abstract class AbstractTransactionsService extends AbstractService
      */
     public function execute()
     {
-        return $this->sendRequest(json_encode($this->transaction), AbstractService::POST);
+        return $this->sendRequest(json_encode($this->transaction->jsonSerialize()), AbstractService::POST);
     }
 
     /**
