@@ -1,99 +1,55 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Enum\PhoneType;
 
 class Phone implements RedeSerializable
 {
     use SerializeTrait;
 
-    const CELLPHONE = 1;
-    const HOME = 2;
-    const WORK = 3;
-    const OTHER = 4;
-
-    /**
-     * @var string
-     */
-    private $ddd;
-
-    /**
-     * @var string
-     */
-    private $number;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * Phone constructor.
-     *
-     * @param $ddd
-     * @param $number
-     * @param int $type
-     */
-    public function __construct($ddd, $number, $type = Phone::CELLPHONE)
-    {
-        $this->setDdd($ddd);
-        $this->setNumber($number);
-        $this->setType($type);
+    public function __construct(
+        private string $ddd,
+        private string $number,
+        private PhoneType $type = PhoneType::Cellphone,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getDdd()
+    public function getDdd(): string
     {
         return $this->ddd;
     }
 
-    /**
-     * @return string
-     */
-    public function getNumber()
+    public function setDdd(string $ddd): static
+    {
+        $this->ddd = $ddd;
+
+        return $this;
+    }
+
+    public function getNumber(): string
     {
         return $this->number;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getType()
+    public function setNumber(string $number): static
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    public function getType(): PhoneType
     {
         return $this->type;
     }
 
-    /**
-     * @param string $ddd
-     *
-     * @return Phone
-     */
-    public function setDdd($ddd)
-    {
-        $this->ddd = $ddd;
-        return $this;
-    }
-
-    /**
-     * @param string $number
-     *
-     * @return Phone
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-        return $this;
-    }
-
-    /**
-     * @param string $type
-     *
-     * @return Phone
-     */
-    public function setType($type)
+    public function setType(PhoneType $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 }

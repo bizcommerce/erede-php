@@ -1,98 +1,102 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Auth\InMemoryTokenStore;
+use Rede\Auth\TokenStoreInterface;
 
 class Store
 {
-    /**
-     * Which environment will this store used for?
-     * @var Environment
-     */
-    private $environment;
+    private Environment $environment;
+
+    private TokenStoreInterface $tokenStore;
 
     /**
-     * The unique identifier of the store
-     * @var string
+     * @param string $filiation PV / clientId
+     * @param string $token     Chave de Integração / clientSecret
      */
-    private $filiation;
-
-    /**
-     * The security token that will be used to guarantee the transaction integrity
-     * @var string
-     */
-    private $token;
-
-    /**
-     * Creates a store.
-     *
-     * @param string $filiation
-     * @param string $token
-     * @param Environment $environment if none provided, production will be used.
-     */
-    public function __construct($filiation, $token, Environment $environment = null)
-    {
-        $environment = $environment != null ? $environment : Environment::production();
-
-        $this->setFiliation($filiation);
-        $this->setToken($token);
-        $this->setEnvironment($environment);
+    public function __construct(
+        private string $filiation,
+        private string $token,
+        ?Environment $environment = null,
+        ?TokenStoreInterface $tokenStore = null,
+    ) {
+        $this->environment = $environment ?? Environment::production();
+        $this->tokenStore = $tokenStore ?? new InMemoryTokenStore();
     }
 
-    /**
-     * @return Environment
-     */
-    public function getEnvironment()
+    public function getEnvironment(): Environment
     {
         return $this->environment;
     }
 
-    /**
-     * @return string
-     */
-    public function getFiliation()
+    public function getFiliation(): string
     {
         return $this->filiation;
     }
 
     /**
-     *
-     * @return string
+     * OAuth 2.0 clientId. Alias of the filiation (PV).
      */
-    public function getToken()
+    public function getClientId(): string
+    {
+        return $this->filiation;
+    }
+
+    /**
+     * OAuth 2.0 clientSecret. Alias of the token (Chave de Integração).
+     */
+    public function getClientSecret(): string
     {
         return $this->token;
     }
 
+    public function getTokenStore(): TokenStoreInterface
+    {
+        return $this->tokenStore;
+    }
+
+    public function setTokenStore(TokenStoreInterface $tokenStore): static
+    {
+        $this->tokenStore = $tokenStore;
+
+        return $this;
+    }
+
     /**
-     * @param Environment $environment
-     *
-     * @return Store
+     * A stable key identifying the OAuth token for this credential + environment
+     * pair, so different stores/environments never share a cached token.
      */
-    public function setEnvironment(Environment $environment)
+    public function getTokenCacheKey(): string
+    {
+        return 'rede_oauth_' . sha1($this->filiation . '|' . $this->environment->getTokenEndpoint());
+    }
+
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    public function setEnvironment(Environment $environment): static
     {
         $this->environment = $environment;
+
         return $this;
     }
 
-    /**
-     * @param string $filiation
-     *
-     * @return Store
-     */
-    public function setFiliation($filiation)
+    public function setFiliation(string $filiation): static
     {
         $this->filiation = $filiation;
+
         return $this;
     }
 
-    /**
-     * @param string $token
-     *
-     * @return Store
-     */
-    public function setToken($token)
+    public function setToken(string $token): static
     {
         $this->token = $token;
+
         return $this;
     }
 }

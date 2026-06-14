@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 class Flight implements RedeSerializable
@@ -7,153 +9,85 @@ class Flight implements RedeSerializable
     use SerializeTrait;
 
     /**
-     * @var string
+     * @var array<int, Passenger>|null
      */
-    private $date;
+    private ?array $passenger = null;
 
-    /**
-     * @var string
-     */
-    private $from;
-
-    /**
-     * @var string
-     */
-    private $number;
-
-    /**
-     * @var array[Passenger]
-     */
-    private $passenger;
-
-    /**
-     *
-     * @var string
-     */
-    private $to;
-
-    public function __construct($number, $from, $to, $date)
-    {
-        $this->setNumber($number);
-        $this->setFrom($from);
-        $this->setTo($to);
-        $this->setDate($date);
+    public function __construct(
+        private string $number,
+        private string $from,
+        private string $to,
+        private string $date,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getDate()
+    public function getDate(): string
     {
         return $this->date;
     }
 
-    /**
-     * @param string $date
-     *
-     * @return Flight
-     */
-    public function setDate($date)
+    public function setDate(string $date): static
     {
         $this->date = $date;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getFrom()
+    public function getFrom(): string
     {
         return $this->from;
     }
 
-    /**
-     * @param string $from
-     *
-     * @return Flight
-     */
-    public function setFrom($from)
+    public function setFrom(string $from): static
     {
         $this->from = $from;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getNumber()
+    public function getNumber(): string
     {
         return $this->number;
     }
 
-    /**
-     * @param string $number
-     *
-     * @return Flight
-     */
-    public function setNumber($number)
+    public function setNumber(string $number): static
     {
         $this->number = $number;
+
         return $this;
     }
 
     /**
-     *
-     * @return array
+     * @return array<int, Passenger>|null
      */
-    public function getPassenger()
+    public function getPassenger(): ?array
     {
         return $this->passenger;
     }
 
-    /**
-     * @param Passenger $passenger
-     *
-     * @return Flight
-     */
-    public function setPassenger(Passenger $passenger)
+    public function setPassenger(Passenger $passenger): static
     {
         $this->passenger = [];
-        $this->addPassenger($passenger);
-        return $this;
+
+        return $this->addPassenger($passenger);
     }
 
-    /**
-     * @param Passenger $passenger
-     *
-     * @return Flight
-     */
-    public function addPassenger(Passenger $passenger)
+    public function addPassenger(Passenger $passenger): static
     {
-        if ($this->passenger === null) {
-            $this->passenger = [];
-        }
-
         $this->passenger[] = $passenger;
 
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getTo()
+    public function getTo(): string
     {
         return $this->to;
     }
 
-    /**
-     *
-     * @param string $to
-     *
-     * @return Flight
-     */
-    public function setTo($to)
+    public function setTo(string $to): static
     {
         $this->to = $to;
+
         return $this;
     }
 }

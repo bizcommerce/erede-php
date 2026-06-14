@@ -1,204 +1,202 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Enum\Mpi;
+use Rede\Enum\OnFailure;
 
 class ThreeDSecure implements RedeSerializable
 {
     use CreateTrait;
     use SerializeTrait;
 
-    const CONTINUE_ON_FAILURE = 'continue';
-    const DECLINE_ON_FAILURE = 'decline';
+    public const DATA_ONLY = 'DATA_ONLY';
 
-    /**
-     * @var string
-     */
-    private $cavv;
+    private ?string $cavv = null;
 
-    /**
-     * @var string
-     */
-    private $eci;
+    private ?string $eci = null;
 
-    /**
-     * @var bool
-     */
-    private $embedded = true;
+    private ?string $url = null;
 
-    /**
-     * @var string
-     */
-    private $onFailure;
+    private ?string $xid = null;
 
-    /**
-     *
-     * @var string
-     */
-    private $url;
+    private int $threeDIndicator = 2;
 
-    /**
-     *
-     * @var string
-     */
-    private $userAgent;
+    private ?string $directoryServerTransactionId = null;
 
-    /**
-     *
-     * @var string
-     */
-    private $xid;
+    private string $userAgent;
 
-    /**
-     * ThreeDSecure constructor.
-     */
-    public function __construct()
-    {
-        $userAgent = eRede::USER_AGENT;
+    private bool $embedded;
 
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    private ?string $returnCode = null;
+
+    private ?string $returnMessage = null;
+
+    private ?string $challengePreference = null;
+
+    public function __construct(
+        private ?Device $device = null,
+        private OnFailure $onFailure = OnFailure::Decline,
+        Mpi $mpi = Mpi::Rede,
+        ?string $userAgent = null,
+    ) {
+        if ($userAgent === null) {
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? eRede::USER_AGENT;
         }
 
-        $this->setUserAgent($userAgent);
+        $this->embedded = $mpi === Mpi::Rede;
+        $this->userAgent = $userAgent;
     }
 
-    /**
-     * @return string
-     */
-    public function getCavv()
+    public function getReturnCode(): ?string
+    {
+        return $this->returnCode;
+    }
+
+    public function getReturnMessage(): ?string
+    {
+        return $this->returnMessage;
+    }
+
+    public function getDevice(): ?Device
+    {
+        return $this->device;
+    }
+
+    public function setDevice(Device $device): static
+    {
+        $this->device = $device;
+
+        return $this;
+    }
+
+    public function getThreeDIndicator(): int
+    {
+        return $this->threeDIndicator;
+    }
+
+    public function setThreeDIndicator(int $threeDIndicator): static
+    {
+        if ($threeDIndicator < 2) {
+            // 3DS 1 was discontinued on 2022-10-15.
+            trigger_error(
+                'Support for 3DS 1 and all related technology is discontinued.',
+                E_USER_DEPRECATED
+            );
+        }
+
+        $this->threeDIndicator = $threeDIndicator;
+
+        return $this;
+    }
+
+    public function getDirectoryServerTransactionId(): ?string
+    {
+        return $this->directoryServerTransactionId;
+    }
+
+    public function setDirectoryServerTransactionId(string $directoryServerTransactionId): static
+    {
+        $this->directoryServerTransactionId = $directoryServerTransactionId;
+
+        return $this;
+    }
+
+    public function getCavv(): ?string
     {
         return $this->cavv;
     }
 
-    /**
-     * @param string $cavv
-     *
-     * @return ThreeDSecure
-     */
-    public function setCavv($cavv)
+    public function setCavv(string $cavv): static
     {
         $this->cavv = $cavv;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getEci()
+    public function getEci(): ?string
     {
         return $this->eci;
     }
 
-    /**
-     * @param string $eci
-     *
-     * @return ThreeDSecure
-     */
-    public function setEci($eci)
+    public function setEci(string $eci): static
     {
         $this->eci = $eci;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getOnFailure()
+    public function getOnFailure(): OnFailure
     {
         return $this->onFailure;
     }
 
-    /**
-     * @param string $onFailure
-     *
-     * @return ThreeDSecure
-     */
-    public function setOnFailure($onFailure)
+    public function setOnFailure(OnFailure $onFailure): static
     {
         $this->onFailure = $onFailure;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getUrl()
+    public function getUrl(): ?string
     {
         return $this->url;
     }
 
-    /**
-     * @param string $url
-     *
-     * @return ThreeDSecure
-     */
-    public function setUrl($url)
+    public function setUrl(string $url): static
     {
         $this->url = $url;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getUserAgent()
+    public function getUserAgent(): string
     {
         return $this->userAgent;
     }
 
-    /**
-     * @param string $userAgent
-     *
-     * @return ThreeDSecure
-     */
-    public function setUserAgent($userAgent)
+    public function setUserAgent(string $userAgent): static
     {
         $this->userAgent = $userAgent;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getXid()
+    public function getXid(): ?string
     {
         return $this->xid;
     }
 
-    /**
-     *
-     * @param string $xid
-     *
-     * @return ThreeDSecure
-     */
-    public function setXid($xid)
+    public function setXid(string $xid): static
     {
         $this->xid = $xid;
+
         return $this;
     }
 
-    /**
-     *
-     * @return bool
-     */
-    public function isEmbedded()
+    public function isEmbedded(): bool
     {
         return $this->embedded;
     }
 
-    /**
-     * @param bool $embedded
-     *
-     * @return ThreeDSecure
-     */
-    public function setEmbedded($embedded)
+    public function setEmbedded(bool $embedded): static
     {
         $this->embedded = $embedded;
+
+        return $this;
+    }
+
+    public function getChallengePreference(): ?string
+    {
+        return $this->challengePreference;
+    }
+
+    public function setChallengePreference(?string $challengePreference): static
+    {
+        $this->challengePreference = $challengePreference;
+
         return $this;
     }
 }

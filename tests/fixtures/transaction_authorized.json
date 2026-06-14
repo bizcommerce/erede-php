@@ -1,0 +1,41 @@
+{
+    "tid": "100120000000000001",
+    "reference": "pedido-1234",
+    "amount": 2500,
+    "installments": 1,
+    "cardBin": "498765",
+    "last4": "4321",
+    "cardHolderName": "JOHN DOE",
+    "kind": "credit",
+    "nsu": "000001",
+    "authorizationCode": "123456",
+    "returnCode": "00",
+    "returnMessage": "Success.",
+    "dateTime": "2024-01-15T10:30:00.000Z",
+    "requestDateTime": "2024-01-15T10:29:59.000Z",
+    "authorization": {
+        "affiliation": "30099542",
+        "amount": 2500,
+        "authorizationCode": "123456",
+        "cardBin": "498765",
+        "cardHolderName": "JOHN DOE",
+        "dateTime": "2024-01-15T10:30:00.000Z",
+        "installments": 1,
+        "kind": "credit",
+        "last4": "4321",
+        "nsu": "000001",
+        "origin": "1",
+        "reference": "pedido-1234",
+        "returnCode": "00",
+        "returnMessage": "Success.",
+        "status": "Authorized",
+        "tid": "100120000000000001"
+    },
+    "links": [
+        {
+            "method": "GET",
+            "rel": "self",
+            "href": "https://api.userede.com.br/erede/v1/transactions/100120000000000001"
+        }
+    ]
+}

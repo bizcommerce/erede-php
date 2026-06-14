@@ -1,74 +1,67 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede\Service;
 
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+use Rede\Environment;
 use Rede\Exception\RedeException;
+use Rede\Http\HttpClient;
 use Rede\Store;
 use Rede\Transaction;
 
 abstract class AbstractTransactionsService extends AbstractService
 {
-    /**
-     * @var Transaction
-     */
-    protected $transaction;
+    private ?string $tid = null;
 
-    /**
-     * @var string
-     */
-    private $tid;
-
-    /**
-     * AbstractTransactionsService constructor.
-     *
-     * @param Store $store
-     * @param Transaction $transaction
-     * @param LoggerInterface $logger
-     */
-    public function __construct(Store $store, Transaction $transaction = null, LoggerInterface $logger = null)
-    {
-        parent::__construct($store, $logger);
-
-        $this->transaction = $transaction;
+    public function __construct(
+        Store $store,
+        protected ?Transaction $transaction = null,
+        ?HttpClient $http = null,
+        ?LoggerInterface $logger = null,
+    ) {
+        parent::__construct($store, $http, $logger);
     }
 
     /**
-     * @return Transaction
-     * @throws \InvalidArgumentException, \RuntimeException, RedeException
+     * @throws InvalidArgumentException|\RuntimeException|RedeException
      */
-    public function execute()
+    public function execute(): Transaction
     {
         return $this->sendRequest(json_encode($this->transaction->jsonSerialize()), AbstractService::POST);
     }
 
-    /**
-     * @see    AbstractService::getService()
-     * @return string
-     */
-    protected function getService()
+    protected function getService(): string
     {
         return 'transactions';
     }
 
-    /**
-     * @return string
-     */
-    public function getTid()
+    protected function getServiceUrl(): string
+    {
+        // Token-based transactions (cardToken set) are served from the v2 API.
+        $version = $this->transaction?->getCardToken() !== null ? 'v2' : Environment::VERSION;
+
+        return $this->store->getEnvironment()->getEndpoint($this->getService(), $version);
+    }
+
+    public function getTid(): ?string
     {
         return $this->tid;
     }
 
+    public function setTid(?string $tid): static
+    {
+        $this->tid = $tid;
+
+        return $this;
+    }
+
     /**
-     * @param string $response
-     * @param string $statusCode
-     *
-     * @return Transaction
-     * @see    AbstractService::parseResponse()
-     * @throws RedeException, \InvalidArgumentException
+     * @throws RedeException|InvalidArgumentException
      */
-    protected function parseResponse($response, $statusCode)
+    protected function parseResponse(string $response, int $statusCode): Transaction
     {
         $previous = null;
 
@@ -82,23 +75,14 @@ abstract class AbstractTransactionsService extends AbstractService
             $previous = $e;
         }
 
-        if ((int)$statusCode >= 400) {
+        if ($statusCode >= 400) {
             throw new RedeException(
-                $this->transaction->getReturnMessage(),
-                $this->transaction->getReturnCode(),
+                (string) $this->transaction->getReturnMessage(),
+                (int) $this->transaction->getReturnCode(),
                 $previous
             );
         }
 
         return $this->transaction;
-    }
-
-    /**
-     *
-     * @param string $tid
-     */
-    public function setTid($tid)
-    {
-        $this->tid = $tid;
     }
 }

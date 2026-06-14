@@ -1,24 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede\Service;
 
 use Rede\Transaction;
 
 class CaptureTransactionService extends AbstractTransactionsService
 {
-    /**
-     * @return Transaction
-     * @throws \InvalidArgumentException, \RuntimeException, RedeException
-     */
-    public function execute()
+    public function execute(): Transaction
     {
         return $this->sendRequest(json_encode($this->transaction), AbstractService::PUT);
     }
 
-    /**
-     * @return string
-     */
-    protected function getService()
+    protected function getService(): string
     {
         return sprintf('%s/%s', parent::getService(), $this->transaction->getTid());
     }

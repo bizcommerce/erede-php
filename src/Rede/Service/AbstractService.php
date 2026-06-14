@@ -1,156 +1,132 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede\Service;
 
 use Psr\Log\LoggerInterface;
 use Rede\eRede;
+use Rede\Http\HttpClient;
 use Rede\Store;
-use Rede\Transaction;
-use RuntimeException;
 
 abstract class AbstractService
 {
-    const GET = 'GET';
-    const POST = 'POST';
-    const PUT = 'PUT';
+    public const GET = 'GET';
+    public const POST = 'POST';
+    public const PUT = 'PUT';
 
-    /**
-     * @var resource
-     */
-    protected $curl;
+    protected HttpClient $http;
 
-    /**
-     * @var Store
-     */
-    protected $store;
+    private ?AuthenticationService $authenticationService = null;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    public function __construct(
+        protected readonly Store $store,
+        ?HttpClient $http = null,
+        private readonly ?LoggerInterface $logger = null,
+    ) {
+        $this->http = $http ?? new HttpClient();
+    }
 
-    /**
-     * AbstractService constructor.
-     *
-     * @param Store $store
-     * @param LoggerInterface $logger
-     */
-    public function __construct(Store $store, LoggerInterface $logger = null)
+    protected function getAuthenticationService(): AuthenticationService
     {
-        $this->store = $store;
-        $this->logger = $logger;
+        if ($this->authenticationService === null) {
+            $this->authenticationService = new AuthenticationService($this->store, $this->http, $this->logger);
+        }
+
+        return $this->authenticationService;
     }
 
     /**
-     * @return Transaction
-     * @throws \InvalidArgumentException, \RuntimeException, RedeException
+     * @throws \InvalidArgumentException|\RuntimeException|\Rede\Exception\RedeException
      */
-    abstract public function execute();
+    abstract public function execute(): mixed;
 
     /**
-     * @param string $body
-     * @param string $method
-     *
-     * @return mixed
      * @throws \RuntimeException
      */
-    protected function sendRequest($body = null, $method = 'GET')
+    protected function sendRequest(?string $body = null, string $method = self::GET, bool $isRetry = false): mixed
     {
-        if (is_resource($this->curl)) {
-            curl_close($this->curl);
-        }
+        $token = $this->getAuthenticationService()->getToken();
+        $url = $this->getServiceUrl();
 
         $headers = [
-            'User-Agent: ' . eRede::USER_AGENT . ' ' . php_uname(),
-            'Accept: application/json'
+            'User-Agent' => eRede::USER_AGENT . ' ' . php_uname(),
+            'Accept' => 'application/json',
+            'Authorization' => $token->getAuthorizationHeader(),
+            // Ask Rede to include card-brand details in the response.
+            'Transaction-Response' => 'brand-return-opened',
         ];
 
-        $this->curl = curl_init($this->store->getEnvironment()->getEndpoint($this->getService()));
-
-        curl_setopt(
-            $this->curl,
-            CURLOPT_USERPWD,
-            sprintf('%s:%s', $this->store->getFiliation(), $this->store->getToken())
-        );
-
-        if (!defined('CURL_SSLVERSION_TLSv1_2')) {
-            define('CURL_SSLVERSION_TLSv1_2', 6);
-
-            if ($this->logger !== null) {
-                $this->logger->alert('Atenção, por motivos de segurança, recomendamos fortemente que você atualize a versão do seu PHP.');
-            }
-        }
-
-        curl_setopt($this->curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, true);
-
-        switch ($method) {
-            case 'GET':
-                break;
-            case 'POST':
-                curl_setopt($this->curl, CURLOPT_POST, true);
-                break;
-            default:
-                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $method);
-        }
-
         if ($body !== null) {
-            curl_setopt($this->curl, CURLOPT_POSTFIELDS, $body);
-
-            $headers[] = 'Content-Type: application/json; charset=utf8';
-        } else {
-            $headers[] = 'Content-Length: 0';
+            $headers['Content-Type'] = 'application/json; charset=utf8';
         }
-
-        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->curl, CURLOPT_HTTPHEADER, $headers);
 
         if ($this->logger !== null) {
-            $this->logger->debug(
-                trim(
-                    sprintf("Request Rede\n%s %s\n%s\n\n%s",
-                        $method,
-                        $this->store->getEnvironment()->getEndpoint($this->getService()),
-                        implode("\n", $headers),
-                        preg_replace('/"(cardnumber|securitycode)":"[^"]+"/i', '"\1":"***"', $body)
-                    )
-                )
-            );
+            $this->logger->debug($this->describeRequest($method, $url, $headers, $body));
         }
 
-        $response = curl_exec($this->curl);
-        $statusCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+        $response = $this->http->send($method, $url, $headers, $body);
+        $statusCode = $response->getStatusCode();
+        $responseBody = (string) $response->getBody();
 
         if ($this->logger !== null) {
-            $this->logger->debug(
-                sprintf("Response Rede\nStatus Code: %s\n\n%s",
-                    $statusCode,
-                    $response
-                )
-            );
+            $this->logger->debug(sprintf("Response Rede\nStatus Code: %s\n\n%s", $statusCode, $responseBody));
         }
 
-        if (curl_errno($this->curl)) {
-            throw new RuntimeException('Curl error: ' . curl_error($this->curl));
+        // The cached token may have expired server-side; refresh once and retry.
+        if ($statusCode === 401 && !$isRetry) {
+            $this->logger?->debug('Rede respondeu 401; renovando o token OAuth e repetindo a requisição.');
+
+            $this->getAuthenticationService()->refreshToken();
+
+            return $this->sendRequest($body, $method, true);
         }
 
-        curl_close($this->curl);
+        return $this->parseResponse($responseBody, $statusCode);
+    }
 
-        $this->curl = null;
+    /**
+     * The fully-qualified URL the request is sent to. Override to target a base
+     * other than the default transaction endpoint (e.g. the token service).
+     */
+    protected function getServiceUrl(): string
+    {
+        return $this->store->getEnvironment()->getEndpoint($this->getService());
+    }
 
-        return $this->parseResponse($response, $statusCode);
+    /**
+     * Builds the (secret-redacted) debug line for an outgoing request.
+     *
+     * @param array<string, string> $headers
+     */
+    private function describeRequest(string $method, string $url, array $headers, ?string $body): string
+    {
+        $renderedHeaders = [];
+
+        foreach ($headers as $name => $value) {
+            $renderedHeaders[] = strcasecmp($name, 'Authorization') === 0
+                ? 'Authorization: ***'
+                : sprintf('%s: %s', $name, $value);
+        }
+
+        $safeBody = preg_replace('/"(cardnumber|securitycode)":"[^"]+"/i', '"\1":"***"', (string) $body);
+
+        return trim(sprintf(
+            "Request Rede\n%s %s\n%s\n\n%s",
+            $method,
+            $url,
+            implode("\n", $renderedHeaders),
+            $safeBody
+        ));
     }
 
     /**
      * @return string Gets the service that will be used on the request
      */
-    abstract protected function getService();
+    abstract protected function getService(): string;
 
     /**
-     * @param string $response Parses the HTTP response from Rede
-     * @param string $statusCode The HTTP status code
-     *
-     * @return mixed
+     * Parses the HTTP response from Rede.
      */
-    abstract protected function parseResponse($response, $statusCode);
+    abstract protected function parseResponse(string $response, int $statusCode): mixed;
 }

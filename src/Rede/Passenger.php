@@ -1,114 +1,67 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 class Passenger implements RedeSerializable
 {
     use SerializeTrait;
-    
-    /**
-     * @var string
-     */
-    private $email;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private ?Phone $phone = null;
 
-    /**
-     * @var Phone
-     */
-    private $phone;
-
-    /**
-     * @var string
-     */
-    private $ticket;
-
-    public function __construct($name, $email, $ticket)
-    {
-        $this->setName($name);
-        $this->setEmail($email);
-        $this->setTicket($ticket);
+    public function __construct(
+        private string $name,
+        private string $email,
+        private string $ticket,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     *
-     * @return Passenger
-     */
-    public function setEmail($email)
+    public function setEmail(string $email): static
     {
         $this->email = $email;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Passenger
-     */
-    public function setName($name)
+    public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
-    /**
-     *
-     * @return Phone
-     */
-    public function getPhone()
+    public function getPhone(): ?Phone
     {
         return $this->phone;
     }
 
-    /**
-     * @param Phone $phone
-     *
-     * @return Passenger
-     */
-    public function setPhone(Phone $phone)
+    public function setPhone(Phone $phone): static
     {
         $this->phone = $phone;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getTicket()
+    public function getTicket(): string
     {
         return $this->ticket;
     }
 
-    /**
-     * @param string $ticket
-     *
-     * @return Passenger
-     */
-    public function setTicket($ticket)
+    public function setTicket(string $ticket): static
     {
         $this->ticket = $ticket;
+
         return $this;
     }
 }

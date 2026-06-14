@@ -1,59 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Enum\UrlKind;
 
 class Url implements RedeSerializable
 {
     use SerializeTrait;
 
-    const CALLBACK = 'callback';
-    const THREE_D_SECURE_FAILURE = 'threeDSecureFailure';
-    const THREE_D_SECURE_SUCCESS = 'threeDSecureSuccess';
-
-    private $kind = Url::CALLBACK;
-    private $url;
-
-    public function __construct($url, $kind = Url::CALLBACK)
-    {
-        $this->setUrl($url);
-        $this->setKind($kind);
+    public function __construct(
+        private string $url,
+        private UrlKind $kind = UrlKind::Callback,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getKind()
+    public function getKind(): UrlKind
     {
         return $this->kind;
     }
 
-    /**
-     * @param string $kind
-     *
-     * @return Url
-     */
-    public function setKind($kind)
+    public function setKind(UrlKind $kind): static
     {
         $this->kind = $kind;
+
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    /**
-     * @param mixed $url
-     *
-     * @return Url
-     */
-    public function setUrl($url)
+    public function setUrl(string $url): static
     {
         $this->url = $url;
+
         return $this;
     }
 }

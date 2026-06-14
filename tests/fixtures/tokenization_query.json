@@ -1,0 +1,19 @@
+{
+    "returnCode": "00",
+    "returnMessage": "Success",
+    "tokenizationId": "0c299dab-2b7a-41a1-8514-e54f9dd18297",
+    "affiliation": "90104480",
+    "tokenizationStatus": "Active",
+    "bin": "498765",
+    "last4": "4321",
+    "lastModifiedDate": "2024-01-15T10:30:00-03:00",
+    "brand": {
+        "name": "Visa",
+        "tokenstatus": "Active",
+        "brandTid": "BRTID123"
+    },
+    "token": {
+        "code": "5448280000000007",
+        "expirationDate": "12/2030"
+    }
+}

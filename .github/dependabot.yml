@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Dev dependencies (PHPUnit, PHPStan, PHP_CodeSniffer, …). Runtime deps are loose PSR
+  # constraints resolved by the host app, so there is little to bump there.
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+
+  # Keep the GitHub Actions used in CI pinned to current major/minor releases.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - ci

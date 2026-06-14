@@ -1,13 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 interface RedeUnserializable
 {
-    /**
-     * @param string $serialized
-     *
-     * @return mixed
-     */
-    public function jsonUnserialize($serialized);
+    public function jsonUnserialize(string $serialized): mixed;
 }

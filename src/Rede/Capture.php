@@ -1,83 +1,54 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
-use DateTime;
+use DateTimeImmutable;
 
 class Capture
 {
     use CreateTrait;
 
-    /**
-     * @var int
-     */
-    private $amount;
+    private ?int $amount = null;
 
-    /**
-     * @var \DateTime
-     */
-    private $dateTime;
+    private ?DateTimeImmutable $dateTime = null;
 
-    /**
-     * @var string
-     */
-    private $nsu;
+    private ?string $nsu = null;
 
-    /**
-     * @return int
-     */
-    public function getAmount()
+    public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getDateTime()
+    public function setAmount(int $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getDateTime(): ?DateTimeImmutable
     {
         return $this->dateTime;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getNsu()
+    public function setDateTime(string $dateTime): static
+    {
+        $this->dateTime = new DateTimeImmutable($dateTime);
+
+        return $this;
+    }
+
+    public function getNsu(): ?string
     {
         return $this->nsu;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return Capture
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-        return $this;
-    }
-
-    /**
-     * @param string $dateTime
-     *
-     * @return Capture
-     */
-    public function setDateTime($dateTime)
-    {
-        $this->dateTime = new DateTime($dateTime);
-        return $this;
-    }
-
-    /**
-     * @param string $nsu
-     *
-     * @return Capture
-     */
-    public function setNsu($nsu)
+    public function setNsu(string $nsu): static
     {
         $this->nsu = $nsu;
+
         return $this;
     }
 }

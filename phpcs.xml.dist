@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="erede-php">
+    <description>PSR-12 coding standard for the eRede SDK.</description>
+
+    <file>src</file>
+    <file>tests</file>
+
+    <!-- Show sniff codes and progress; only scan PHP files. -->
+    <arg name="colors"/>
+    <arg value="ps"/>
+    <arg name="extensions" value="php"/>
+
+    <!-- Soft style warnings (e.g. the 120-char line-length guideline) inform but do
+         not fail the build; only errors block. -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
+    <rule ref="PSR12"/>
+
+    <!-- The flagship facade is intentionally named `eRede` (brand spelling, lower-case e),
+         and its test mirrors that name. Everything else must still be PascalCase. -->
+    <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
+        <exclude-pattern>src/Rede/eRede.php</exclude-pattern>
+        <exclude-pattern>tests/eRedeTest.php</exclude-pattern>
+    </rule>
+
+    <!-- Tests deliberately use descriptive snake_case method names for readability and
+         co-locate small test doubles next to the test that uses them. -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+</ruleset>

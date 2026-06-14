@@ -1,0 +1,27 @@
+{
+    "reference": "pix310723140848",
+    "tid": "40402307310827210012",
+    "amount": 3900,
+    "qrCodeResponse": {
+        "returnCode": "00",
+        "returnMessage": "Success.",
+        "affiliation": "90104480",
+        "kind": "pix",
+        "reference": "pix310723140848",
+        "amount": 3900,
+        "tid": "40402307310827210012",
+        "status": "Pending",
+        "expirationQrCode": "2023-08-30T16:48:00-03:00",
+        "qrCodeImage": "iVBORw0KGgoAAAANSUhEUgAAAA==",
+        "qrCodeData": "00020101021226720014br.gov.bcb.pix2550bx.com.br/pix/8b3da2f3"
+    },
+    "returnCode": "00",
+    "returnMessage": "Success.",
+    "links": [
+        {
+            "method": "GET",
+            "rel": "transaction",
+            "href": "https://api-hom.userede.com.br/erede/v1/transactions/40402307310827210012"
+        }
+    ]
+}

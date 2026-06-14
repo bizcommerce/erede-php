@@ -1,34 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede\Service;
 
 use Rede\Transaction;
 
 class GetTransactionService extends AbstractTransactionsService
 {
-    /**
-     * @var string
-     */
-    private $reference;
+    private ?string $reference = null;
 
-    /**
-     * @var bool
-     */
-    private $refund = false;
+    private bool $refund = false;
 
-    /**
-     * @return Transaction
-     * @throws \InvalidArgumentException, \RuntimeException, RedeException
-     */
-    public function execute()
+    public function execute(): Transaction
     {
         return $this->sendRequest(null, AbstractService::GET);
     }
 
-    /**
-     * @return string
-     */
-    protected function getService()
+    protected function getService(): string
     {
         if ($this->reference !== null) {
             return sprintf('%s?reference=%s', parent::getService(), $this->reference);
@@ -41,23 +30,14 @@ class GetTransactionService extends AbstractTransactionsService
         return sprintf('%s/%s', parent::getService(), $this->getTid());
     }
 
-    /**
-     * @param string $reference
-     *
-     * @return GetTransactionService
-     */
-    public function setReference($reference)
+    public function setReference(?string $reference): static
     {
         $this->reference = $reference;
+
         return $this;
     }
 
-    /**
-     * @param bool $refund
-     *
-     * @return GetTransactionService
-     */
-    public function setRefund($refund = true)
+    public function setRefund(bool $refund = true): static
     {
         $this->refund = $refund;
 

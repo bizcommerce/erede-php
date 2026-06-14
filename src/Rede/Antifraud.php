@@ -1,107 +1,66 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 class Antifraud
 {
     use CreateTrait;
 
-    /**
-     * @var string
-     */
-    private $recommendation;
+    private ?string $recommendation = null;
 
-    /**
-     * @var string
-     */
-    private $riskLevel;
+    private ?string $riskLevel = null;
 
-    /**
-     * @var int
-     */
-    private $score;
+    private ?int $score = null;
 
-    /**
-     * @var bool
-     */
-    private $success = false;
+    private bool $success = false;
 
-    /**
-     * @return string
-     */
-    public function getRecommendation()
+    public function getRecommendation(): ?string
     {
         return $this->recommendation;
     }
 
-    /**
-     * @param string $recommendation
-     *
-     * @return Antifraud
-     */
-    public function setRecommendation($recommendation)
+    public function setRecommendation(string $recommendation): static
     {
         $this->recommendation = $recommendation;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getRiskLevel()
+    public function getRiskLevel(): ?string
     {
         return $this->riskLevel;
     }
 
-    /**
-     * @param string $riskLevel
-     *
-     * @return Antifraud
-     */
-    public function setRiskLevel($riskLevel)
+    public function setRiskLevel(string $riskLevel): static
     {
         $this->riskLevel = $riskLevel;
+
         return $this;
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getScore()
+    public function getScore(): ?int
     {
         return $this->score;
     }
 
-    /**
-     * @param int $score
-     *
-     * @return Antifraud
-     */
-    public function setScore($score)
+    public function setScore(int $score): static
     {
         $this->score = $score;
+
         return $this;
     }
 
-    /**
-     *
-     * @return bool
-     */
-    public function isSuccess()
+    public function isSuccess(): bool
     {
         return $this->success;
     }
 
-    /**
-     * @param bool $success
-     *
-     * @return Antifraud
-     */
-    public function setSuccess($success)
+    public function setSuccess(bool $success): static
     {
         $this->success = $success;
+
         return $this;
     }
 }

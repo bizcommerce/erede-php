@@ -1,231 +1,125 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Enum\ItemType;
 
 class Item implements RedeSerializable
 {
     use SerializeTrait;
 
-    const PHYSICAL = 1;
-    const DIGITAL = 2;
-    const SERVICE = 3;
-    const AIRLINE = 4;
+    private ?int $amount = null;
 
-    /**
-     * @var int
-     */
-    private $amount;
+    private ?string $description = null;
 
-    /**
-     * @var string
-     */
-    private $description;
+    private ?int $discount = null;
 
-    /**
-     * @var int
-     */
-    private $discount;
+    private ?int $freight = null;
 
-    /**
-     * @var int
-     */
-    private $freight;
+    private ?string $shippingType = null;
 
-    /**
-     *
-     * @var string
-     */
-    private $id;
-
-    /**
-     *
-     * @var int
-     */
-    private $quantity;
-
-    /**
-     *
-     * @var string
-     */
-    private $shippingType;
-
-    /**
-     *
-     * @var int
-     */
-    private $type;
-
-    /**
-     * Item constructor.
-     *
-     * @param $id
-     * @param $quantity
-     * @param int      $type
-     */
-    public function __construct($id, $quantity, $type = Item::PHYSICAL)
-    {
-        $this->setId($id);
-        $this->setQuantity($quantity);
-        $this->setType($type);
+    public function __construct(
+        private string $id,
+        private int $quantity,
+        private ItemType $type = ItemType::Physical,
+    ) {
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getAmount()
+    public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function setAmount(int $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getDiscount()
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDiscount(): ?int
     {
         return $this->discount;
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getFreight()
+    public function setDiscount(int $discount): static
+    {
+        $this->discount = $discount;
+
+        return $this;
+    }
+
+    public function getFreight(): ?int
     {
         return $this->freight;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getId()
+    public function setFreight(int $freight): static
+    {
+        $this->freight = $freight;
+
+        return $this;
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getQuantity()
+    public function setId(string $id): static
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getQuantity(): int
     {
         return $this->quantity;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getShippingType()
+    public function setQuantity(int $quantity): static
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getShippingType(): ?string
     {
         return $this->shippingType;
     }
 
-    /**
-     *
-     * @return int
-     */
-    public function getType()
+    public function setShippingType(string $shippingType): static
+    {
+        $this->shippingType = $shippingType;
+
+        return $this;
+    }
+
+    public function getType(): ItemType
     {
         return $this->type;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return Item
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-        return $this;
-    }
-
-    /**
-     * @param string $description
-     *
-     * @return Item
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    /**
-     * @param int $discount
-     *
-     * @return Item
-     */
-    public function setDiscount($discount)
-    {
-        $this->discount = $discount;
-        return $this;
-    }
-
-    /**
-     * @param int $freight
-     *
-     * @return Item
-     */
-    public function setFreight($freight)
-    {
-        $this->freight = $freight;
-        return $this;
-    }
-
-    /**
-     *
-     * @param string $id
-     *
-     * @return Item
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    /**
-     * @param int $quantity
-     *
-     * @return Item
-     */
-    public function setQuantity($quantity)
-    {
-        $this->quantity = $quantity;
-        return $this;
-    }
-
-    /**
-     * @param string $shippingType
-     *
-     * @return Item
-     */
-    public function setShippingType($shippingType)
-    {
-        $this->shippingType = $shippingType;
-        return $this;
-    }
-
-    /**
-     *
-     * @param int $type
-     *
-     * @return Item
-     */
-    public function setType($type)
+    public function setType(ItemType $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 }

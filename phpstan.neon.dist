@@ -1,0 +1,17 @@
+parameters:
+    level: 6
+    paths:
+        - src
+    # The library advertises php >=8.1; analysing across the 8.1–8.4 band flags any
+    # accidental use of syntax/functions newer than the floor (the test suite itself only
+    # runs on 8.2+ because PHPUnit 11 requires PHP >= 8.2).
+    phpVersion:
+        min: 80100
+        max: 80400
+    ignoreErrors:
+        # CreateTrait::create() intentionally uses `new static()` to hydrate the concrete
+        # value object from a decoded gateway response. These DTOs are leaf classes with
+        # consistent (no-arg) constructors, so the instantiation is safe.
+        -
+            identifier: new.static
+            path: src/Rede/CreateTrait.php

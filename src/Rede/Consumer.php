@@ -1,75 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 use ArrayIterator;
+use Rede\Enum\Gender;
+use Rede\Enum\PhoneType;
 use stdClass;
 
 class Consumer implements RedeSerializable
 {
     use SerializeTrait;
 
-    const MALE = 'M';
-    const FEMALE = 'F';
-
     /**
-     * @var string
+     * @var array<int, stdClass>|null
      */
-    private $cpf;
+    private ?array $documents = null;
 
-    /**
-     * @var array
-     */
-    private $documents;
+    private ?Gender $gender = null;
 
-    /**
-     * @var string
-     */
-    private $email;
+    private ?Phone $phone = null;
 
-    /**
-     * @var string
-     */
-    private $gender;
-
-    /**
-     *
-     * @var string
-     */
-    private $name;
-
-    /**
-     *
-     * @var Phone
-     */
-    private $phone;
-
-    /**
-     * Consumer constructor.
-     *
-     * @param string $name
-     * @param string $email
-     * @param string $cpf
-     */
-    public function __construct($name, $email, $cpf)
-    {
-        $this->setName($name);
-        $this->setEmail($email);
-        $this->setCpf($cpf);
+    public function __construct(
+        private string $name,
+        private string $email,
+        private string $cpf,
+    ) {
     }
 
-    /**
-     * @param string $type
-     * @param string $number
-     *
-     * @return Consumer
-     */
-    public function addDocument($type, $number)
+    public function addDocument(string $type, string $number): static
     {
-        if ($this->documents === null) {
-            $this->documents = [];
-        }
-
         $document = new stdClass();
         $document->type = $type;
         $document->number = $number;
@@ -79,129 +40,76 @@ class Consumer implements RedeSerializable
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getCpf()
+    public function getCpf(): string
     {
         return $this->cpf;
     }
 
-    /**
-     * @return \ArrayIterator
-     */
-    public function getDocumentsIterator()
+    public function setCpf(string $cpf): static
     {
-        if ($this->documents === null) {
-            $this->documents = [];
-        }
+        $this->cpf = $cpf;
 
-        return new ArrayIterator($this->documents);
+        return $this;
     }
 
     /**
-     *
-     * @return string
+     * @return ArrayIterator<int, stdClass>
      */
-    public function getEmail()
+    public function getDocumentsIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->documents ?? []);
+    }
+
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getGender()
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getGender(): ?Gender
     {
         return $this->gender;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getName()
+    public function setGender(Gender $gender): static
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     *
-     * @return Phone
-     */
-    public function getPhone()
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getPhone(): ?Phone
     {
         return $this->phone;
     }
 
-    /**
-     * @param string $ddd
-     * @param string $number
-     * @param int    $type
-     *
-     * @return Consumer
-     */
-    public function phone($ddd, $number, $type = Phone::CELLPHONE)
+    public function phone(string $ddd, string $number, PhoneType $type = PhoneType::Cellphone): static
     {
         return $this->setPhone(new Phone($ddd, $number, $type));
     }
 
-    /**
-     * @param string $cpf
-     *
-     * @return Consumer
-     */
-    public function setCpf($cpf)
-    {
-        $this->cpf = $cpf;
-        return $this;
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return Consumer
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-        return $this;
-    }
-
-    /**
-     * @param string $gender
-     *
-     * @return Consumer
-     */
-    public function setGender($gender)
-    {
-        $this->gender = $gender;
-        return $this;
-    }
-
-    /**
-     *
-     * @param string $name
-     *
-     * @return Consumer
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     *
-     * @param Phone $phone
-     *
-     * @return Consumer
-     */
-    public function setPhone($phone)
+    public function setPhone(Phone $phone): static
     {
         $this->phone = $phone;
+
         return $this;
     }
 }

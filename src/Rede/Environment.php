@@ -1,73 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 use stdClass;
 
 class Environment implements RedeSerializable
 {
-    const PRODUCTION = 'https://api.userede.com.br/erede';
-    const SANDBOX = 'https://api.userede.com.br/desenvolvedores';
-    const VERSION = 'v1';
+    public const PRODUCTION = 'https://api.userede.com.br/erede';
+    public const SANDBOX = 'https://sandbox-erede.useredecloud.com.br';
+    public const VERSION = 'v1';
 
     /**
-     * @var string
+     * OAuth 2.0 token endpoints (client_credentials grant).
      */
-    private $ip;
+    public const TOKEN_ENDPOINT_PRODUCTION = 'https://api.userede.com.br/redelabs/oauth2/token';
+    public const TOKEN_ENDPOINT_SANDBOX = 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
 
     /**
-     * @var string
+     * Hosts that serve the token-service (card / brand tokenization) API.
      */
-    private $sessionId;
+    public const TOKENIZATION_HOST_PRODUCTION = 'https://api.userede.com.br';
+    public const TOKENIZATION_HOST_SANDBOX = 'https://rl7-sandbox-api.useredecloud.com.br';
 
-    /**
-     * @var string
-     */
-    private $endpoint;
+    private ?string $ip = null;
 
-    /**
-     * Creates a environment with its base url and version
-     *
-     * @param string $baseUrl
-     * @param string $version
-     */
-    private function __construct($baseUrl, $version = Environment::VERSION)
-    {
-        $this->endpoint = sprintf('%s/%s/', $baseUrl, $version);
+    private ?string $sessionId = null;
+
+    private function __construct(
+        private string $baseUrl,
+        private string $tokenEndpoint,
+        private string $tokenizationHost,
+    ) {
     }
 
     /**
-     * @param string $service
-     *
-     * @return string Gets the environment endpoint
+     * Builds a transaction endpoint URL. Token-based transactions use v2.
      */
-    public function getEndpoint($service)
+    public function getEndpoint(string $service, string $version = self::VERSION): string
     {
-        return $this->endpoint . $service;
+        return sprintf('%s/%s/%s', $this->baseUrl, $version, $service);
     }
 
     /**
-     * @return string
+     * @return string The OAuth 2.0 token endpoint for this environment.
      */
-    public function getIp()
+    public function getTokenEndpoint(): string
+    {
+        return $this->tokenEndpoint;
+    }
+
+    /**
+     * Builds a token-service (tokenization) endpoint URL.
+     */
+    public function getTokenizationEndpoint(string $path = ''): string
+    {
+        $base = $this->tokenizationHost . '/token-service/oauth/v2/tokenization';
+
+        return $path === '' ? $base : sprintf('%s/%s', $base, $path);
+    }
+
+    public function getIp(): ?string
     {
         return $this->ip;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getSessionId()
+    public function getSessionId(): ?string
     {
         return $this->sessionId;
     }
 
-    /**
-     *
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $consumer = new stdClass();
         $consumer->ip = $this->ip;
@@ -76,42 +80,27 @@ class Environment implements RedeSerializable
         return ['consumer' => $consumer];
     }
 
-    /**
-     * @return Environment A preconfigured production environment
-     */
-
-    public static function production()
+    public static function production(): self
     {
-        return new Environment(Environment::PRODUCTION);
+        return new self(self::PRODUCTION, self::TOKEN_ENDPOINT_PRODUCTION, self::TOKENIZATION_HOST_PRODUCTION);
     }
 
-    /**
-     * @return Environment A preconfigured sandbox environment
-     */
-    public static function sandbox()
+    public static function sandbox(): self
     {
-        return new Environment(Environment::SANDBOX);
+        return new self(self::SANDBOX, self::TOKEN_ENDPOINT_SANDBOX, self::TOKENIZATION_HOST_SANDBOX);
     }
 
-    /**
-     * @param string $ip
-     *
-     * @return Environment
-     */
-    public function setIp($ip)
+    public function setIp(string $ip): static
     {
         $this->ip = $ip;
+
         return $this;
     }
 
-    /**
-     * @param $sessionId
-     *
-     * @return Environment
-     */
-    public function setSessionId($sessionId)
+    public function setSessionId(string $sessionId): static
     {
         $this->sessionId = $sessionId;
+
         return $this;
     }
 }

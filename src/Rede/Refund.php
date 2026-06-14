@@ -1,109 +1,68 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
-use DateTime;
+use DateTimeImmutable;
 
 class Refund
 {
     use CreateTrait;
 
-    /**
-     * @var int
-     */
-    private $amount;
+    private ?int $amount = null;
 
-    /**
-     * @var \DateTime
-     */
-    private $refundDateTime;
+    private ?DateTimeImmutable $refundDateTime = null;
 
-    /**
-     * @var string
-     */
-    private $refundId;
+    private ?string $refundId = null;
 
-    /**
-     * @var string
-     */
-    private $status;
+    private ?string $status = null;
 
-    /**
-     *
-     * @return int
-     */
-    public function getAmount()
+    public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getRefundDateTime()
+    public function setAmount(int $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getRefundDateTime(): ?DateTimeImmutable
     {
         return $this->refundDateTime;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getRefundId()
+    public function setRefundDateTime(string $refundDateTime): static
+    {
+        $this->refundDateTime = new DateTimeImmutable($refundDateTime);
+
+        return $this;
+    }
+
+    public function getRefundId(): ?string
     {
         return $this->refundId;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getStatus()
+    public function setRefundId(string $refundId): static
+    {
+        $this->refundId = $refundId;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return Refund
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-        return $this;
-    }
-
-    /**
-     * @param string $refundDateTime
-     *
-     * @return Refund
-     */
-    public function setRefundDateTime($refundDateTime)
-    {
-        $this->refundDateTime = new DateTime($refundDateTime);
-        return $this;
-    }
-
-    /**
-     * @param string $refundId
-     *
-     * @return Refund
-     */
-    public function setRefundId($refundId)
-    {
-        $this->refundId = $refundId;
-        return $this;
-    }
-
-    /**
-     * @param string $status
-     *
-     * @return Refund
-     */
-    public function setStatus($status)
+    public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 }

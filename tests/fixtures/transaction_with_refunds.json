@@ -1,0 +1,21 @@
+{
+    "tid": "100120000000000001",
+    "reference": "pedido-1234",
+    "amount": 2500,
+    "returnCode": "00",
+    "returnMessage": "Success.",
+    "refunds": [
+        {
+            "amount": 2500,
+            "refundDateTime": "2024-01-16T08:00:00.000Z",
+            "refundId": "refund-aaa-111",
+            "status": "PENDING"
+        },
+        {
+            "amount": 500,
+            "refundDateTime": "2024-01-17T09:15:00.000Z",
+            "refundId": "refund-bbb-222",
+            "status": "CONFIRMED"
+        }
+    ]
+}

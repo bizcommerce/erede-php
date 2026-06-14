@@ -1,102 +1,65 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
+
+use Rede\Enum\AddressTarget;
 
 class Cart implements RedeSerializable
 {
     use SerializeTrait;
 
-    /**
-     * @var Address
-     */
-    private $billing;
+    private ?Address $billing = null;
+
+    private ?Consumer $consumer = null;
+
+    private ?Environment $environment = null;
+
+    private ?Iata $iata = null;
 
     /**
-     * @var Consumer
+     * @var array<int, Item>|null
      */
-    private $consumer;
+    private ?array $items = null;
 
     /**
-     * @var Environment
-     */
-    private $environment;
-
-    /**
-     * @var Iata
-     */
-    private $iata;
-
-    /**
-     * @var array[Item]
-     */
-    private $items;
-
-    /**
+     * Rede supports more than one shipping address, so this slot is an array.
      *
-     * @var Address
+     * @var array<int, Address>|null
      */
-    private $shipping;
+    private ?array $shipping = null;
 
-    /**
-     * @param int $type
-     *
-     * @return Address
-     */
-    public function address($type = Address::BOTH)
+    public function address(AddressTarget $target = AddressTarget::Both): Address
     {
         $address = new Address();
 
-        if ($type & Address::BILLING == Address::BILLING) {
+        if ($target->fillsBilling()) {
             $this->setBillingAddress($address);
         }
 
-        if ($type & Address::SHIPPING == Address::SHIPPING) {
+        if ($target->fillsShipping()) {
             $this->setShippingAddress($address);
         }
 
         return $address;
     }
 
-    /**
-     * @param Item $item
-     *  
-     * @return Cart
-     */
-    public function addItem(Item $item)
+    public function addItem(Item $item): static
     {
-        if ($this->items == null) {
-            $this->items = [];
-        }
-
         $this->items[] = $item;
 
         return $this;
     }
 
-    /**
-     * @param Address $shippingAddress
-     *
-     * @return Cart
-     */
-    public function addShippingAddress(Address $shippingAddress)
+    public function addShippingAddress(Address $shippingAddress): static
     {
-        if ($this->shipping == null) {
-            $this->shipping = [];
-        }
-
         $this->shipping[] = $shippingAddress;
 
         return $this;
     }
 
-    /**
-     * @param string $name
-     * @param string $email
-     * @param string $cpf
-     *
-     * @return Consumer
-     */
-    public function consumer($name, $email, $cpf)
+    public function consumer(string $name, string $email, string $cpf): Consumer
     {
         $consumer = new Consumer($name, $email, $cpf);
 
@@ -105,99 +68,70 @@ class Cart implements RedeSerializable
         return $consumer;
     }
 
-    /**
-     *
-     * @return Address
-     */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?Address
     {
         return $this->billing;
     }
 
-    /**
-     *
-     * @return Consumer
-     */
-    public function getConsumer()
+    public function getConsumer(): ?Consumer
     {
         return $this->consumer;
     }
 
-    /**
-     *
-     * @return Iata
-     */
-    public function getIata()
+    public function getIata(): ?Iata
     {
         return $this->iata;
     }
 
     /**
-     *
-     * @return Address
+     * @return array<int, Address>|null
      */
-    public function getShippingAddress()
+    public function getShippingAddress(): ?array
     {
         return $this->shipping;
     }
 
     /**
-     * @param Address $address
-     *
-     * @return Cart
+     * @return array<int, Address>|null
      */
-    public function setBillingAddress(Address $address)
+    public function getShippingAddresses(): ?array
+    {
+        return $this->shipping;
+    }
+
+    public function setBillingAddress(Address $address): static
     {
         $this->billing = $address;
+
         return $this;
     }
 
-    /**
-     *
-     * @param Consumer $consumer
-     *
-     * @return Cart
-     */
-    public function setConsumer(Consumer $consumer)
+    public function setConsumer(Consumer $consumer): static
     {
         $this->consumer = $consumer;
+
         return $this;
     }
 
-    /**
-     *
-     * @param Flight $flight
-     *
-     * @return $this
-     */
-    public function setIata(Flight $flight)
+    public function setIata(Flight $flight): static
     {
         $this->iata = new Iata();
         $this->iata->setFlight($flight);
+
         return $this;
     }
 
-    /**
-     * @param Environment $environment
-     *
-     * @return Cart
-     */
-    public function setEnvironment(Environment $environment)
+    public function setEnvironment(Environment $environment): static
     {
         $this->environment = $environment;
+
         return $this;
     }
 
-    /**
-     *
-     * @param Address $address
-     *
-     * @return Cart
-     */
-    public function setShippingAddress(Address $address)
+    public function setShippingAddress(Address $address): static
     {
         $this->shipping = [$address];
+
         return $this;
     }
-
 }

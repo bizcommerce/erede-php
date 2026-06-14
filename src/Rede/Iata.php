@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 use ArrayIterator;
@@ -8,95 +10,58 @@ class Iata implements RedeSerializable
 {
     use SerializeTrait;
 
-    /**
-     * @var string
-     */
-    private $code;
+    private ?string $code = null;
+
+    private ?string $departureTax = null;
 
     /**
-     * @var string
+     * @var array<int, Flight>|null
      */
-    private $departureTax;
+    private ?array $flight = null;
 
-    /**
-     * @var array[Flight]
-     */
-    private $flight;
-
-    /**
-     * @param Flight $flight
-     *
-     * @return Iata
-     */
-    public function addFlight(Flight $flight)
+    public function addFlight(Flight $flight): static
     {
-        if ($this->flight === null) {
-            $this->flight = [];
-        }
-
         $this->flight[] = $flight;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    /**
-     * @param string $code
-     *
-     * @return Iata
-     */
-    public function setCode($code)
+    public function setCode(string $code): static
     {
         $this->code = $code;
+
         return $this;
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getDepartureTax()
+    public function getDepartureTax(): ?string
     {
         return $this->departureTax;
     }
 
-    /**
-     * @param string $departureTax
-     *
-     * @return Iata
-     */
-    public function setDepartureTax($departureTax)
+    public function setDepartureTax(string $departureTax): static
     {
         $this->departureTax = $departureTax;
+
         return $this;
     }
 
     /**
-     *
-     * @return ArrayIterator
+     * @return ArrayIterator<int, Flight>
      */
-    public function getFlightIterator()
+    public function getFlightIterator(): ArrayIterator
     {
-        return new ArrayIterator($this->flight);
+        return new ArrayIterator($this->flight ?? []);
     }
 
-    /**
-     * @param Flight $flight
-     *
-     * @return Iata
-     */
-    public function setFlight($flight)
+    public function setFlight(Flight $flight): static
     {
         $this->flight = [];
-        $this->addFlight($flight);
 
-        return $this;
+        return $this->addFlight($flight);
     }
 }

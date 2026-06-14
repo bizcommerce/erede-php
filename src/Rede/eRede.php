@@ -1,155 +1,159 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rede;
 
 use Psr\Log\LoggerInterface;
+use Rede\Http\HttpClient;
+use Rede\Service\AbstractTransactionsService;
 use Rede\Service\CancelTransactionService;
 use Rede\Service\CaptureTransactionService;
 use Rede\Service\CreateTransactionService;
+use Rede\Service\CardTokenizationRequestService;
 use Rede\Service\GetTransactionService;
+use Rede\Service\NotificationUrlService;
+use Rede\Service\TokenizationQueryService;
+use Rede\Service\TokenManagementService;
 
 class eRede
 {
-    const USER_AGENT = 'eRede/1.0 (SDK; PHP;)';
+    public const USER_AGENT = 'eRede/4.0 (SDK; PHP;)';
 
-    /**
-     * @var Store
-     */
-    private $store;
+    private HttpClient $http;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * eRede constructor.
-     *
-     * @param Store $store
-     * @param LoggerInterface $logger
-     */
-    public function __construct(Store $store, LoggerInterface $logger = null)
-    {
-        $this->store = $store;
-        $this->logger = $logger;
+    public function __construct(
+        private readonly Store $store,
+        ?HttpClient $http = null,
+        private readonly ?LoggerInterface $logger = null,
+    ) {
+        $this->http = $http ?? new HttpClient();
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return Transaction
-     * @see    eRede::create()
+     * @see eRede::create()
      */
-    public function authorize(Transaction $transaction)
+    public function authorize(Transaction $transaction): Transaction
     {
         return $this->create($transaction);
     }
 
-    /**
-     * @param Transaction $transaction
-     *
-     * @return Transaction
-     */
-    public function create(Transaction $transaction)
+    public function create(Transaction $transaction): Transaction
     {
-        $createTransactionService = new CreateTransactionService($this->store, $transaction, $this->logger);
+        return $this->transactionService(CreateTransactionService::class, $transaction)->execute();
+    }
 
-        return $createTransactionService->execute();
+    public function cancel(Transaction $transaction): Transaction
+    {
+        return $this->transactionService(CancelTransactionService::class, $transaction)->execute();
+    }
+
+    public function capture(Transaction $transaction): Transaction
+    {
+        return $this->transactionService(CaptureTransactionService::class, $transaction)->execute();
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return Transaction
+     * @see eRede::get()
      */
-    public function cancel(Transaction $transaction)
-    {
-        $cancelTransactionService = new CancelTransactionService($this->store, $transaction, $this->logger);
-
-        return $cancelTransactionService->execute();
-    }
-
-    /**
-     * @param Transaction $transaction
-     *
-     * @return Transaction
-     */
-    public function capture(Transaction $transaction)
-    {
-        $captureTransactionService = new CaptureTransactionService($this->store, $transaction, $this->logger);
-
-        return $captureTransactionService->execute();
-    }
-
-    /**
-     * @param $tid
-     *
-     * @return Transaction
-     * @see    eRede::get()
-     */
-    public function getById($tid)
+    public function getById(string $tid): Transaction
     {
         return $this->get($tid);
     }
 
-    /**
-     * @param string $tid
-     *
-     * @return Transaction
-     */
-    public function get($tid)
+    public function get(string $tid): Transaction
     {
-        $getTransactionService = new GetTransactionService($this->store, null, $this->logger);
-        $getTransactionService->setTid($tid);
+        $service = $this->transactionService(GetTransactionService::class);
+        $service->setTid($tid);
 
-        return $getTransactionService->execute();
+        return $service->execute();
+    }
+
+    public function getByReference(string $reference): Transaction
+    {
+        $service = $this->transactionService(GetTransactionService::class);
+        $service->setReference($reference);
+
+        return $service->execute();
+    }
+
+    public function getRefunds(string $tid): Transaction
+    {
+        $service = $this->transactionService(GetTransactionService::class);
+        $service->setTid($tid);
+        $service->setRefund(true);
+
+        return $service->execute();
     }
 
     /**
-     * @param $reference
-     *
-     * @return Transaction
+     * Registers the webhook URL that receives Pix status notifications.
      */
-    public function getByReference($reference)
+    public function notificationUrl(NotificationUrl $notificationUrl): bool
     {
-        $getTransactionService = new GetTransactionService($this->store, null, $this->logger);
-        $getTransactionService->setReference($reference);
-
-        return $getTransactionService->execute();
+        return (new NotificationUrlService($this->store, $notificationUrl, $this->http, $this->logger))->execute();
     }
 
     /**
-     * @param $tid
-     *
-     * @return Transaction
+     * Requests a card token (Card / Brand Tokenization).
      */
-    public function getRefunds($tid)
+    public function tokenizeCard(CardTokenization $card): Tokenization
     {
-        $getTransactionService = new GetTransactionService($this->store, null, $this->logger);
-        $getTransactionService->setTid($tid);
-        $getTransactionService->setRefund(true);
-
-        return $getTransactionService->execute();
+        return (new CardTokenizationRequestService($this->store, $card, $this->http, $this->logger))->execute();
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return Transaction
+     * Queries a tokenization by its id.
      */
-    public function zero(Transaction $transaction)
+    public function queryToken(string $tokenizationId): Tokenization
     {
-        $amount = (int)$transaction->getAmount();
-        $capture = (bool)$transaction->getCapture();
+        return (new TokenizationQueryService($this->store, $tokenizationId, $this->http, $this->logger))->execute();
+    }
+
+    /**
+     * Deletes, suspends or reactivates a token.
+     */
+    public function manageToken(string $tokenizationId, TokenManagement $management): Tokenization
+    {
+        return (new TokenManagementService($this->store, $tokenizationId, $management, $this->http, $this->logger))->execute();
+    }
+
+    /**
+     * Runs a zero-dollar authorization (card validation / tokenization) and
+     * restores the caller's original amount and capture flag afterwards.
+     */
+    public function zero(Transaction $transaction): Transaction
+    {
+        $amount = (int) $transaction->getAmount();
+        $capture = (bool) $transaction->getCapture();
 
         $transaction->setAmount(0);
         $transaction->capture();
 
         $transaction = $this->create($transaction);
 
-        $transaction->setAmount($amount);
+        // getAmount() returns cents while setAmount() expects the major unit (it
+        // multiplies by 100), so divide to restore the original value instead of
+        // scaling it a second time (2500 cents -> 25.00 -> 2500).
+        $transaction->setAmount($amount / 100);
         $transaction->capture($capture);
 
         return $transaction;
+    }
+
+    /**
+     * Builds the transaction service the facade delegates to. Centralised so the
+     * wiring (store + transport + logger) lives in one place and tests can
+     * intercept which service a facade method dispatches to.
+     *
+     * @template T of AbstractTransactionsService
+     *
+     * @param class-string<T> $serviceClass
+     *
+     * @return T
+     */
+    protected function transactionService(string $serviceClass, ?Transaction $transaction = null): AbstractTransactionsService
+    {
+        return new $serviceClass($this->store, $transaction, $this->http, $this->logger);
     }
 }
