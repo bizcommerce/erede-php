@@ -6,7 +6,6 @@ namespace Rede\Service;
 
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Rede\Environment;
 use Rede\Exception\RedeException;
 use Rede\Http\HttpClient;
 use Rede\Store;
@@ -40,10 +39,10 @@ abstract class AbstractTransactionsService extends AbstractService
 
     protected function getServiceUrl(): string
     {
-        // Token-based transactions (cardToken set) are served from the v2 API.
-        $version = $this->transaction?->getCardToken() !== null ? 'v2' : Environment::VERSION;
-
-        return $this->store->getEnvironment()->getEndpoint($this->getService(), $version);
+        // OAuth 2.0 (Bearer) transactions are served exclusively from the v2 API.
+        // The legacy v1 path only accepts HTTP Basic auth and rejects Bearer tokens
+        // with returnCode 25 "Affiliation: Invalid parameter format."
+        return $this->store->getEnvironment()->getEndpoint($this->getService(), 'v2');
     }
 
     public function getTid(): ?string
