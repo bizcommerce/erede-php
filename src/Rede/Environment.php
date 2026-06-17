@@ -10,7 +10,14 @@ class Environment implements RedeSerializable
 {
     public const PRODUCTION = 'https://api.userede.com.br/erede';
     public const SANDBOX = 'https://sandbox-erede.useredecloud.com.br';
-    public const VERSION = 'v1';
+
+    /**
+     * e.Rede transaction API version. After the mandatory OAuth 2.0 migration the
+     * legacy v1 (HTTP Basic) path is decommissioned: it rejects Bearer tokens with
+     * returnCode 25 "Affiliation: Invalid parameter format." All transaction calls
+     * (credit, debit, Pix, capture, refund, query, notification-URL) use v2.
+     */
+    public const VERSION = 'v2';
 
     /**
      * OAuth 2.0 token endpoints (client_credentials grant).
@@ -36,7 +43,8 @@ class Environment implements RedeSerializable
     }
 
     /**
-     * Builds a transaction endpoint URL. Token-based transactions use v2.
+     * Builds a transaction endpoint URL. Defaults to the current API version
+     * ({@see self::VERSION}); pass an explicit version only for legacy needs.
      */
     public function getEndpoint(string $service, string $version = self::VERSION): string
     {

@@ -35,7 +35,7 @@ final class CaptureTransactionServiceTest extends TestCase
 
         $request = $transport->lastRequest();
         self::assertSame('PUT', $request->getMethod());
-        self::assertStringEndsWith('/v1/transactions/999', (string) $request->getUri());
+        self::assertStringEndsWith('/v2/transactions/999', (string) $request->getUri());
     }
 
     /**

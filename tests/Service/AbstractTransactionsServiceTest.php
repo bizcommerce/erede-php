@@ -43,7 +43,7 @@ final class AbstractTransactionsServiceTest extends TestCase
 
         $request = $transport->lastRequest();
         self::assertSame('POST', $request->getMethod());
-        self::assertStringEndsWith('/v1/transactions', (string) $request->getUri());
+        self::assertStringEndsWith('/v2/transactions', (string) $request->getUri());
         self::assertSame($expectedBody, (string) $request->getBody());
         self::assertSame('00', $result->getReturnCode());
         self::assertSame('100120000000000001', $result->getTid());

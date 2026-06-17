@@ -29,7 +29,7 @@ final class CreateTransactionServiceTest extends TestCase
 
         $request = $transport->lastRequest();
         self::assertSame('POST', $request->getMethod());
-        self::assertStringEndsWith('/v1/transactions', (string) $request->getUri());
+        self::assertStringEndsWith('/v2/transactions', (string) $request->getUri());
         self::assertSame(json_encode($transaction->jsonSerialize()), (string) $request->getBody());
     }
 }

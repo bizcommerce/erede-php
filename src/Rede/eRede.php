@@ -88,6 +88,9 @@ class eRede
 
     /**
      * Registers the webhook URL that receives Pix status notifications.
+     *
+     * NOTE: Rede normally registers this URL via its call center, not the API. The
+     * underlying endpoint is unverified (sandbox returns 403). See {@see NotificationUrlService}.
      */
     public function notificationUrl(NotificationUrl $notificationUrl): bool
     {

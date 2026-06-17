@@ -37,14 +37,6 @@ abstract class AbstractTransactionsService extends AbstractService
         return 'transactions';
     }
 
-    protected function getServiceUrl(): string
-    {
-        // OAuth 2.0 (Bearer) transactions are served exclusively from the v2 API.
-        // The legacy v1 path only accepts HTTP Basic auth and rejects Bearer tokens
-        // with returnCode 25 "Affiliation: Invalid parameter format."
-        return $this->store->getEnvironment()->getEndpoint($this->getService(), 'v2');
-    }
-
     public function getTid(): ?string
     {
         return $this->tid;

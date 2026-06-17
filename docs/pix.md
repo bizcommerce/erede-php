@@ -34,8 +34,13 @@ $qr->getExpirationQrCode(); // ?DateTimeImmutable
 
 ## 2. Register the status webhook
 
-Register once per CNPJ. In production the URL is registered via Rede support; the SDK posts the
-sandbox registration request:
+> **Important — registration is handled by Rede, not this method.** Per the e.Rede
+> integration manual, the Pix status webhook URL is registered **by contacting Rede's
+> call center** with your CNPJ, PV, contact email and URL. The `notificationUrl()` method
+> below posts to `POST /v2/transactions/notification-URL`, but that endpoint is **not
+> verified against a live environment** (sandbox returns HTTP 403 for the standard
+> e-commerce token scope). Use it only if Rede has confirmed programmatic registration is
+> enabled for your PV; otherwise register by phone and skip this call.
 
 ```php
 use Rede\NotificationUrl;

@@ -21,7 +21,7 @@
         {
             "method": "GET",
             "rel": "transaction",
-            "href": "https://api-hom.userede.com.br/erede/v1/transactions/40402307310827210012"
+            "href": "https://api-hom.userede.com.br/erede/v2/transactions/40402307310827210012"
         }
     ]
 }

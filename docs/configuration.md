@@ -29,8 +29,7 @@ Environment::sandbox();
 
 | Endpoint | Production | Sandbox |
 | --- | --- | --- |
-| Transactions (v1) | `https://api.userede.com.br/erede/v1/...` | `https://sandbox-erede.useredecloud.com.br/v1/...` |
-| Transactions (v2, token-based) | `.../erede/v2/...` | `.../v2/...` |
+| Transactions (v2, OAuth) | `https://api.userede.com.br/erede/v2/...` | `https://sandbox-erede.useredecloud.com.br/v2/...` |
 | OAuth token | `https://api.userede.com.br/redelabs/oauth2/token` | `https://rl7-sandbox-api.useredecloud.com.br/oauth2/token` |
 | Token-service | `https://api.userede.com.br/token-service/oauth/v2/tokenization` | `https://rl7-sandbox-api.useredecloud.com.br/token-service/oauth/v2/tokenization` |
 

@@ -74,7 +74,7 @@ final class PixTest extends TestCase
         );
 
         self::assertTrue($registered);
-        self::assertStringEndsWith('/v1/transactions/notification-URL', (string) $transport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions/notification-URL', (string) $transport->lastRequest()->getUri());
         $body = json_decode((string) $transport->lastRequest()->getBody(), true);
         self::assertSame('https://example.test/webhook', $body['URL']);
         self::assertSame(['type' => 'bearer', 'token' => 'BEARER 123'], $body['authorization']);
@@ -90,5 +90,45 @@ final class PixTest extends TestCase
         self::assertSame('90104480', $notification->merchantId);
         self::assertSame('41412312010933570004', $notification->qrCode);
         self::assertSame('937e77dd-f330-4b05-895c-60750763d397', $notification->id);
+    }
+
+    #[Test]
+    public function it_queries_a_pix_transaction_by_tid_on_v2(): void
+    {
+        $transport = new MockTransport();
+        $transport->queue(200, self::fixture('pix_qrcode_response.json'));
+
+        $result = (new eRede($this->store(), $transport->http))->getById('40402307310827210012');
+
+        self::assertSame('GET', $transport->lastRequest()->getMethod());
+        self::assertStringEndsWith('/v2/transactions/40402307310827210012', (string) $transport->lastRequest()->getUri());
+        self::assertInstanceOf(QrCodeResponse::class, $result->getQrCodeResponse());
+        self::assertSame('Pending', $result->getQrCodeResponse()->getStatus());
+    }
+
+    #[Test]
+    public function it_queries_a_pix_transaction_by_reference_on_v2(): void
+    {
+        $transport = new MockTransport();
+        $transport->queue(200, self::fixture('pix_qrcode_response.json'));
+
+        (new eRede($this->store(), $transport->http))->getByReference('pix310723140848');
+
+        self::assertSame('GET', $transport->lastRequest()->getMethod());
+        self::assertStringEndsWith('/v2/transactions?reference=pix310723140848', (string) $transport->lastRequest()->getUri());
+    }
+
+    #[Test]
+    public function it_refunds_a_pix_transaction_on_v2(): void
+    {
+        $transport = new MockTransport();
+        $transport->queue(200, '{"returnCode":"00","returnMessage":"Success.","tid":"40402307310827210012"}');
+
+        (new eRede($this->store(), $transport->http))->cancel(
+            (new Transaction(39.0))->setTid('40402307310827210012')
+        );
+
+        self::assertSame('POST', $transport->lastRequest()->getMethod());
+        self::assertStringEndsWith('/v2/transactions/40402307310827210012/refunds', (string) $transport->lastRequest()->getUri());
     }
 }

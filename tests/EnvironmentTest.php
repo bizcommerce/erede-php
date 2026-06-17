@@ -18,7 +18,7 @@ final class EnvironmentTest extends TestCase
     {
         $env = Environment::production();
 
-        self::assertSame('https://api.userede.com.br/erede/v1/transactions', $env->getEndpoint('transactions'));
+        self::assertSame('https://api.userede.com.br/erede/v2/transactions', $env->getEndpoint('transactions'));
         self::assertSame('https://api.userede.com.br/erede/v2/transactions', $env->getEndpoint('transactions', 'v2'));
         self::assertSame(Environment::TOKEN_ENDPOINT_PRODUCTION, $env->getTokenEndpoint());
     }
@@ -28,7 +28,7 @@ final class EnvironmentTest extends TestCase
     {
         $env = Environment::sandbox();
 
-        self::assertSame('https://sandbox-erede.useredecloud.com.br/v1/transactions', $env->getEndpoint('transactions'));
+        self::assertSame('https://sandbox-erede.useredecloud.com.br/v2/transactions', $env->getEndpoint('transactions'));
         self::assertSame('https://rl7-sandbox-api.useredecloud.com.br/oauth2/token', $env->getTokenEndpoint());
     }
 

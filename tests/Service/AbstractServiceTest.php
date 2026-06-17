@@ -34,7 +34,7 @@ final class AbstractServiceTest extends TestCase
 
         $request = $transport->lastRequest();
         self::assertSame('GET', $request->getMethod());
-        self::assertStringEndsWith('/v1/transactions', (string) $request->getUri());
+        self::assertStringEndsWith('/v2/transactions', (string) $request->getUri());
         self::assertSame('Bearer stub-token', $request->getHeaderLine('Authorization'));
         self::assertSame('application/json', $request->getHeaderLine('Accept'));
         self::assertSame('brand-return-opened', $request->getHeaderLine('Transaction-Response'));

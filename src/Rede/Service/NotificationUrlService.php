@@ -10,8 +10,12 @@ use Rede\NotificationUrl;
 use Rede\Store;
 
 /**
- * Registers a Pix status-notification webhook URL.
- * POST /v1/transactions/notification-URL
+ * Registers a Pix status-notification webhook URL via POST /v2/transactions/notification-URL.
+ *
+ * WARNING: per the e.Rede manual the Pix webhook URL is normally registered by Rede's
+ * call center (CNPJ + PV + email + URL), not through the API. This endpoint is NOT
+ * verified against a live environment (sandbox returns HTTP 403 for the standard
+ * e-commerce token scope). Use only if Rede has confirmed API registration for your PV.
  */
 class NotificationUrlService extends AbstractService
 {

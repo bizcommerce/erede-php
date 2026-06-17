@@ -33,7 +33,7 @@ final class GetTransactionServiceTest extends TestCase
         $request = $transport->lastRequest();
         self::assertSame('GET', $request->getMethod());
         self::assertSame('', (string) $request->getBody());
-        self::assertStringEndsWith('/v1/transactions/123', (string) $request->getUri());
+        self::assertStringEndsWith('/v2/transactions/123', (string) $request->getUri());
     }
 
     #[Test]
@@ -42,7 +42,7 @@ final class GetTransactionServiceTest extends TestCase
         $transport = new MockTransport();
         $this->service($transport)->setReference('pedido-9')->execute();
 
-        self::assertStringEndsWith('/v1/transactions?reference=pedido-9', (string) $transport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions?reference=pedido-9', (string) $transport->lastRequest()->getUri());
     }
 
     #[Test]
@@ -52,7 +52,7 @@ final class GetTransactionServiceTest extends TestCase
         $service = $this->service($transport);
         $service->setTid('123')->setReference('pedido-9')->execute();
 
-        self::assertStringEndsWith('/v1/transactions?reference=pedido-9', (string) $transport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions?reference=pedido-9', (string) $transport->lastRequest()->getUri());
     }
 
     #[Test]
@@ -62,6 +62,6 @@ final class GetTransactionServiceTest extends TestCase
         $service = $this->service($transport);
         $service->setTid('123')->setRefund(true)->execute();
 
-        self::assertStringEndsWith('/v1/transactions/123/refunds', (string) $transport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions/123/refunds', (string) $transport->lastRequest()->getUri());
     }
 }

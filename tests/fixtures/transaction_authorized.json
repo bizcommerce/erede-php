@@ -35,7 +35,7 @@
         {
             "method": "GET",
             "rel": "self",
-            "href": "https://api.userede.com.br/erede/v1/transactions/100120000000000001"
+            "href": "https://api.userede.com.br/erede/v2/transactions/100120000000000001"
         }
     ]
 }

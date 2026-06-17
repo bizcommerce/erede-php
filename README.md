@@ -233,7 +233,7 @@ $erede->manageToken($tokenizationId, new TokenManagement(
     TokenManagement::REASON_FRAUD_SUSPICION
 ));
 
-// 3. Pay with a token (routed to the v2 endpoint automatically):
+// 3. Pay with a token (every transaction uses the v2 endpoint under OAuth):
 $tx = (new Transaction(49.90, $ref))->cardToken($tokenizationId);
 $tx = $erede->create($tx);
 ```

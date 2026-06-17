@@ -52,7 +52,7 @@ final class TransactionFlowTest extends TestCase
         $captureTransport->queue(200, self::fixture('transaction_authorized.json'));
         (new CaptureTransactionService($store, $authorized, $captureTransport->http))->execute();
         self::assertSame('PUT', $captureTransport->lastRequest()->getMethod());
-        self::assertStringEndsWith('/v1/transactions/100120000000000001', (string) $captureTransport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions/100120000000000001', (string) $captureTransport->lastRequest()->getUri());
 
         // 3) Query by tid.
         $getTransport = new MockTransport();
@@ -91,7 +91,7 @@ final class TransactionFlowTest extends TestCase
 
         $result = $get->execute();
 
-        self::assertStringEndsWith('/v1/transactions/100120000000000001/refunds', (string) $transport->lastRequest()->getUri());
+        self::assertStringEndsWith('/v2/transactions/100120000000000001/refunds', (string) $transport->lastRequest()->getUri());
         self::assertCount(2, $result->getRefunds());
         self::assertSame('refund-aaa-111', $result->getRefunds()[0]->getRefundId());
     }
