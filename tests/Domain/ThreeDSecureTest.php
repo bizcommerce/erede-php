@@ -97,8 +97,8 @@ final class ThreeDSecureTest extends TestCase
         self::assertTrue($serialized['embedded']);
         self::assertSame('decline', $serialized['onFailure']);
         self::assertSame(eRede::USER_AGENT, $serialized['userAgent']);
-        self::assertSame('24', $serialized['device']['ColorDepth']);
-        self::assertSame(900, $serialized['device']['ScreenHeight']);
+        self::assertSame('24', $serialized['device']['colorDepth']);
+        self::assertSame(900, $serialized['device']['screenHeight']);
     }
 
     #[Test]
